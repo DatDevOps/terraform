@@ -1,5 +1,5 @@
  <!-- Terraform state fundamentals -->
-
+# NB
  Make sure to complete this module in one sitting if using PluralSight because if you dont and PluralSight provisions a new account for it might do so with a new account number and you will get this error when your get to practical-2:
 
     │ Error: reading Secrets Manager Secret (arn:aws:secretsmanager:us-east-1:329482598717:secret:burrito-barn-dev-api-key-GMOV2I): operation error Secrets Manager: DescribeSecret, https response error StatusCode: 400, RequestID: 59d39fdd-7687-4381-94a9-78f87fceb603, api error AccessDeniedException: User: arn:aws:iam::654654598709:user/cloud_user is not authorized to perform: secretsmanager:DescribeSecret on resource: arn:aws:secretsmanager:us-east-1:329482598717:secret:burrito-barn-dev-api-key-GMOV2I because no resource-based policy allows the secretsmanager:DescribeSecret action
@@ -13,6 +13,10 @@
 Note the account number above was different from my new account
 
 # Terraform state inspection
+
+Now:
+- Copy the content of /01-variables-input-output/004/base_app to /intermediate/02-terraform-state/01-state-commands
+- Now delete the m4.tfplan file
 
 The following command provides information about the state of a resource/s
 
@@ -64,9 +68,6 @@ Below are some kind of drift and informs the decision to use or not use the '-re
 
 - Keep the change without disruption (because it was an approved change)
 
-Now:
-- Copy the content of /01-variables-input-output/004/base_app to /terraform/intermediate/02-terraform-state
-- Now delete the m4.tfplan file
 
 On the commandline, set an environment (must be prefixed like this TF_VAR_<VARIABLE_KEY>) variable to hold the value of the api_key using below
 
@@ -201,3 +202,4 @@ Add the removed blocks and run plan
 
     $ terraform plan out m1.tfplan [now shows that the resource will be removed from state rather delete it]
 
+    $ terraform apply m1.tfplan [removes the resource from state without deleting it]
