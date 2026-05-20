@@ -142,7 +142,8 @@ Next add this block of code to your terraform.tf file
 Now initialize the base_app project
 
     [might prompt you to enter 'yes' if there is pre-existing state data. Otherwise it will not.]
-    $ terraform init --backend-config="s3.tfbackend" [copies existing state data, if exist, to remote backend]
+
+    $ terraform init --backend-config="s3.tfbackend" [copies existing state data, if exist, to remote backend]    
 
     $ terraform fmt -check
     
@@ -158,8 +159,28 @@ Your local state file should be empty without state data. But 'terraform show' s
 
     $ terraform show [returns state data from remote backend]
 
+# Changing from one remote s3 to another
 
-<!-- Terraform state locking -->
+    $ terraform init -reconfigure --backend-config="s3.tfbackend" 
+
+    $ terraform init -migrate-state --backend-config="s3.tfbackend" 
+
+Difference between the two terraform init commands
+1. terraform init -reconfigure --backend-config="s3.tfbackend". Reinitializes the backend configuration. Ignores any saved backend settings from previous runs. Uses the backend config you provide now (s3.tfbackend).
+   Does not automatically migrate existing state from one backend to another unless Terraform decides it is needed. 
+
+2. terraform init -migrate-state --backend-config="s3.tfbackend". Also initializes with the backend config provided. If Terraform detects that the backend has changed, 
+   it will migrate state from the current backend  to the new backend. Useful when switching to a different backend and you want Terraform to move the existing state.
+
+Note: In newer Terraform versions, -migrate-state may be the default behavior when backend changes are detected, while -reconfigure is still useful for forcing backend re-read.
+
+<!-- Short summary -->
+-reconfigure: force re-read backend config and ignore stored backend settings.
+
+-migrate-state: allow Terraform to move existing state to the new backend if the backend backend is changed.    
+
+
+#  Terraform state locking
 Prevents multiple users from making chnages to state at the same time. Terraform plan, apply, and console all place a lock on state.
 If Terraform cannot acquire a lock on state, it usiually error out with a lock error that includes when the lock was placed and who placed it
 In the event that a terraform process crashes and did not remove the lock, you can forcefully remove the lock using below:
@@ -216,7 +237,13 @@ Now on terminal 1:
 
     > exit [throws error because it could not longer find the .lock and thought it still had a lock on state. Very dangerous and throws the error below]
 
+Now on terminal 2, go ahead and delete all the resources when you are ready:
+
+    $ terraform destroy  [enter 'yes' when prompted] 
+
 <!-- Terraform workspaces -->
+# Merits of Terraform WorkSpaces includes:
+
 - Supports multiple environment
 - Single root module
 - Seperate state data instances
@@ -225,9 +252,91 @@ Now on terminal 1:
    - Default workspaces cannot be deleted
    - Terraform is aware of the current selected workspace and cn be reference with 'terraform.workspace' expression
 
+# The challenges of Terraform Community WorkSpaces include:
+
+- Shared backend: Anyone working in the workspace can see all state data and modify them for all environment. Something you may not want
+- Code Changes and promotion: Community workspaces do not know about version control, which mean changes to an environment, say dev, will be applied to all all environments (stg, test, prod etc) if you do not specify the selected workspace
+- Managing variables values: can quickly get messy and does not scale well
+
+# Enterprise Terraform WorkSpaces include:
+- HCP Terraform
+- Terraform Enterprise
+
+Enterprise Terraform Workspaces are fully featured and are core construct of the two enterprise workspaces above. 
+We are focused on the community edition which amongs other things:
+- lacks access control
+- variable value management
+- VCS (version control systems) integration
+
+# Terraform workspace commands
+- terraform workspace show: shows the selected workspace
+- terraform workspace list: list all available workspace
+- terraform workspace new <NEW_WORKSPACE_NAME>: creates a new workspace and select that workspace as the current context
+- terraform workspace select <NEW_WORKSPACE_NAME>: changes the workspace context to the specified workspace name(selects the workspace)
+  You can tell Terraform to switch to the named workspace and create it if it does not already exist: terraform workspace select -or-create=true <NEW_WORKSPACE_NAME>
+- terraform workspace delete <NEW_WORKSPACE_NAME>: deletes a specified workspace along with its state data. By default terraform workspace delete does not delete
+  state data with managed resources. But you can force delete it by passing the '-force' option/flag to delete it away
 
 
+# Workspace practical
+- Create and deploy a dev-2 environment
+- Use terraform.workspace instead of var.environment
 
-Now delete all resources
+Make this changes in main.tf:
+- Add a new local environment   = terraform.workspace == "default" ? var.environment : terraform.workspace
 
-    $ terraform destroy  [enter 'yes' when prompted]    
+- In EC2 resource block "aws_instance", add this 'environment = local.environment' and remove 'environment = var.environment'
+
+- Comment out the names and changes the names "aws_iam_instance_profile", "aws_iam_role", and "aws_secretsmanager_secret" reources to "${local.role_name}-${local.environment}"
+
+
+Now run the following command:
+
+    $ terraform workspace show [shows you are in the default workspace. This workspace cannot be deleted]
+        default
+
+    $ terraform plan -out s3-remote.tfplan [ should return no chnages if nothing has changed]
+
+    $ terraform workspace new dev-2 [creates a new dev-2 workspace and select that workspace as the current context]
+
+        Created and switched to workspace "dev-2"!
+
+        You're now on a new, empty workspace. Workspaces isolate their state,
+        so if you run "terraform plan" Terraform will not see any existing state
+        for this configuration.
+
+    $ terraform workspace show [shows the new workspace context] 
+
+        dev-2  
+
+    $ terraform workspace list [shows all the workspaces and the * indicates the selected/current workspace]
+
+        default
+        * dev-2  
+
+    $ terraform state list [should return nothing as there are no managed object in this workspace]
+
+    $ $ terraform plan -out s3-remote-dev-2.tfplan
+
+    $ $ terraform apply s3-remote-dev-2.tfplan [enter yes if prompted to create resources in dev-2]
+
+Now go to the AWS console and visit both instances created by the default and dev-2 workspaces. The former should have "dev" on the page and the latter "dev-2"
+
+    $ terraform workspace list [shows all the workspaces and the * indicates the selected/current workspace]
+        default
+        * dev-2
+
+Now to delete the dev-2 workspace when we are done, we need to delete the managed resources first. Can't delete a workspace with managed resources in state unless you use the '-force' flag/option
+
+    $ terraform destroy -auto-approve [destroys all resource without prompting]
+
+    $ terraform workspace select default [switch to a different workspace to delete your current workspace - dev. Can't delete current space, you must switch just like git]
+
+    $ terraform workspace delete dev-2 [deletes the dev-2 workspace]
+
+    $ $ terraform workspace list [dev-2 workspace deleted]
+        * default
+
+    $ $ terraform destroy -auto-approve [deletes all default workspace resources]
+
+   

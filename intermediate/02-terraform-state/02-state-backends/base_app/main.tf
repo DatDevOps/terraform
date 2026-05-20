@@ -13,6 +13,7 @@ locals {
   secret_name   = "${local.naming_prefix}-api-key"
   bucket_name   = local.naming_prefix
   subnet_names  = [for name in keys(var.vpc_network_info.public_subnets) : "${local.naming_prefix}-${name}"]
+  environment   = terraform.workspace == "default" ? var.environment : terraform.workspace
 }
 
 
@@ -46,12 +47,14 @@ data "aws_ssm_parameter" "amzn2_linux" {
 }
 
 resource "aws_iam_instance_profile" "main" {
-  name = local.profile_name
+  name = "${local.role_name}-${local.environment}"
+  # name = local.role_name
   role = aws_iam_role.main.name
 }
 
 resource "aws_iam_role" "main" {
-  name               = local.role_name
+  name               = "${local.role_name}-${local.environment}"
+  # name               = local.role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
@@ -74,7 +77,8 @@ resource "aws_instance" "web" {
   user_data_replace_on_change = true
   user_data = templatefile("${path.module}/templates/user_data.sh",
     {
-      environment = var.environment
+      environment = local.environment
+      # environment = var.environment
   })
 
   tags = merge(local.default_tags, {
@@ -106,7 +110,8 @@ resource "aws_security_group" "main" {
 ## Other Resources
 
 resource "aws_secretsmanager_secret" "api_secret" {
-  name                           = local.secret_name
+  name                           = "${local.secret_name}-${local.environment}"
+  # name                           = local.secret_name
   description                    = "Secret to store API key"
   force_overwrite_replica_secret = true
   recovery_window_in_days        = 0
