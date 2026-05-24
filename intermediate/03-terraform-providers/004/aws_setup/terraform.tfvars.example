@@ -1,0 +1,14 @@
+# Example Terraform variables file
+
+# Optional: Customize the role name and existing user name
+cross_account_role_name = "S3BucketManagementRole"
+primary_user_name       = "existing-vpc-user"  # Name of existing IAM user in primary account
+
+# Optional: Customize tags
+tags = {
+  Project     = "VPC-Peering-Setup"
+  Environment = "cross-account"
+  ManagedBy   = "Terraform"
+  Owner       = "DevOps-Team"
+  CostCenter  = "IT-Infrastructure"
+}
