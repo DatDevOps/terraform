@@ -51,7 +51,7 @@ To assume a role in an account, the role arn has to be passed
 # NB: I did not deploy the resources in this module because I had only one account from PluralSight. 
 # Try this in personal machine with the two profiles configured and role created in the other account that can be be assumed by the primary account
 
-If you have two profiles configured on your machine, say my-sandbox and security (any other profile for another account that you might actually have configure) do the  below before proceeding.
+If you have two profiles configured on your machine, say my-sandbox and security (or any other profile for another account that you might actually have configure) do the  below before proceeding.
 
 OTHERWISE go straight to step 1 below if you already have a role arn configure in another account and passed the value in terraform.tfvars
 

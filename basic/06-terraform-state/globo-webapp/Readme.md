@@ -217,7 +217,7 @@ Once successful try the state comamnds:
     
     $ terraform apply newbackend.tfplan
 
-Clicked on the EC2 output link in theterminal to access it and the webpage. 
+Clicked on the EC2 output link in the terminal to access it and the webpage. 
 Go to the S3 bucket on the AWS console to see your state under the prefix "dev.tfstate"
 Now run the 'show' and list command to show that although the local terraform.tfstate is empty, you cna still access the remote state
 
