@@ -38,7 +38,7 @@ All variable value must be available during 'terraform plan', otherise terraform
     - Bool
 
 2. Collection
-    - List => [ an array o same type. can mix and match]
+    - List => [ an array o same type. can't mix and match]
     - Set => (contains unique values)
     - Map => {key/value pairs}
 

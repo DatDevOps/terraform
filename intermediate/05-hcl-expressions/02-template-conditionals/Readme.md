@@ -192,3 +192,21 @@ Now copy the solution from previous module to the current module directory
     $ cd 05-hcl-expressions/02-template-conditionals
 
     $ cp -R  ../005-hcl-expressions/01-expression-operators/base_app .
+
+    $ rm -rf m1.tfplan [deletes the plan generated from the previous module]
+
+Study these main.tf configurations, the template that contains teh userdata, and the outputs 
+in the previous module - /005-hcl-expressions/01-expression-operators/base_app . 
+
+Now study the main.tf, outputs and template userdata of current module  to see the implementations of all
+the above requirements
+
+After understanding the additions, run the below:
+
+    $ terraform plan --var="environment=production" [note the names of resources have the 'production' enviromrnt value]
+
+    $ terraform plan -out m2.tfplan [note the names of resources have the 'development' default enviromrnt value]
+    
+    $ terraform apply m2.tfplan 
+
+    $ terraform destroy 

@@ -27,14 +27,17 @@ There are several types of Terraform expression:
 
 # Terraform Functions 
 
-Teeraform support Functions in addition to expressions. There are two kinds of functions available, built‑in and provider‑defined. 
+Terraform support Functions in addition to expressions. There are two kinds of functions available, built‑in and provider‑defined. 
 As implied by the name, built‑in functions are bundled into the Terraform binary, so no external provider plug‑in is required. 
-Provider‑defined functions are bundled in with a provider plug‑in and tend to be specific to operations around that provider's service or platform.   
+Provider‑defined functions are bundled in with a provider plug‑in and tend to be specific to operations around that provider's service or platform.
+   
 There's no direct way to define a custom function in HCL. You do have a couple options though. 
 You could write a function module that performs the necessary data transformations you want and leverage it in your configurations. 
+
 Or you could write a custom provider in Go with provider‑defined functions.
 he syntax for built‑in functions uses the function_name, followed by parentheses, and then inside those parentheses, however many arguments the function takes. 
 Some functions take no arguments, like the timestamp function. Some take a fixed number, like the join function, and some take a variable number, like the max function. 
+
 For functions that take a list of arguments, Terraform also supports an expansion symbol of three dots. It goes after a list, and it tells Terraform to expand that list 
 into individual arguments for the function. Terraform has over 100 built‑in functions at this point, so HashiCorp has helpfully grouped them into different categories.
 

@@ -19,8 +19,14 @@ output "vpc_arn_components" {
   value       = provider::aws::arn_parse(aws_vpc.main.arn)
 }
 
-# added output as required by module-2 practical requirement
-output "ec2_public_dns" {
-  description = "Public DNS address of the web server"
-  value       = "http://${aws_instance.web.public_dns}%{if var.environment == "production"}:8080%{endif}"
+##no longer needed as per module-4 practical requirement, but keeping it here for reference
+# output "ec2_public_dns" {
+#   description = "Public DNS address of the web server"
+#   value       = "http://${aws_instance.web.public_dns}%{if var.environment == "production"}:8080%{endif}"
+# }
+
+# added output as required by module-4 practical requirement
+output "lb_public_dns" {
+  description = "Public DNS address of the load balancer"
+  value       = "http://${aws_lb.web.dns_name}:${var.application_config.load_balancer_port}"
 }
