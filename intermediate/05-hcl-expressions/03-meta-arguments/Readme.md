@@ -46,8 +46,8 @@ E.G.
 
         resource "aws_s3_object" "taco_toppings" {
             for_each = {
-                cheese  "cheese.png"
-                lettuce  "lettuce.png"
+                cheese : "cheese.png"
+                lettuce : "lettuce.png"
             }
 
             key = each.value
