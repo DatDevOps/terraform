@@ -90,7 +90,7 @@ You can change that with:
 - path.cwd: absolute path to current working directory  
 
 # Template string function
-ThThe function takes two arguments, the template to render and a map of values to use for the placeholders. Very similar to how templatefile works
+The function takes two arguments, the template to render and a map of values to use for the placeholders. Very similar to how templatefile works
 Templatestring makes the creation of the template itself dynamic. For the source of the template, you could reference a local value, an input variable, 
 or even a data source. If you'd like the template itself to be more dynamic at runtime, then template string is what you need. 
 
