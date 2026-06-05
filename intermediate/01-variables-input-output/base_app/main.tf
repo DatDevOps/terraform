@@ -92,7 +92,7 @@ resource "aws_secretsmanager_secret" "api_secret" {
   name                           = "api-key-bb"
   description                    = "Secret to store API key"
   force_overwrite_replica_secret = true
-  recovery_window_in_days = 0
+  recovery_window_in_days        = 0
 }
 
 resource "aws_secretsmanager_secret_version" "api_secret_version" {

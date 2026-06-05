@@ -23,23 +23,23 @@ data "aws_availability_zones" "available" {
 }
 
 # This is needed because we changed the resource name from aws_instance.web to aws_instance.app
-moved{
-    from = aws_instance.web
-    to = aws_instance.app
+moved {
+  from = aws_instance.web
+  to   = aws_instance.app
 }
 
-removed{
-    from = aws_instance.web
-    lifecycle{
-        destroy = false
-    }
+removed {
+  from = aws_instance.web
+  lifecycle {
+    destroy = false
+  }
 }
 
-removed{
-    from = aws_security_group.main
-    lifecycle{
-        destroy = false
-    }
+removed {
+  from = aws_security_group.main
+  lifecycle {
+    destroy = false
+  }
 }
 
 module "networking" {

@@ -1,5 +1,5 @@
 data "aws_caller_identity" "current" {
-    provider = aws.vpc_account
+  provider = aws.vpc_account
 }
 
 locals {
@@ -178,5 +178,5 @@ resource "aws_flow_log" "vpc_flow_logs" {
     Description = "VPC Flow Logs for VPC ${var.vpc_id}"
   })
 
-  depends_on = [ aws_s3_bucket_policy.vpc_flow_logs ]
+  depends_on = [aws_s3_bucket_policy.vpc_flow_logs]
 }

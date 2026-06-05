@@ -53,6 +53,156 @@ Due to the ephemeral nature of integration tests, they still aren't testing a fu
 That means they can only verify that portion of the environment is still operating correctly, and additional testing will be required as you promote changed code through lower environments and into production.
 
 # Terraform Testing Framework
-We now have all these tests that we want to run, and we probably want to do that through an automated system. The Terraform testing framework was introduced in Terraform 1.6, and it provides a built‑in way for you to test your Terraform code. Before we jump into the syntax, I want to describe the workflow that's followed for testing. The testing framework uses the terraform test command. By default, the command looks for test files defined in the current working directory or a tests subdirectory. Each test that Terraform runs is defined inside of a .tftest.hcl or .tftest.json file. Yes, you can define your tests in JSON. No, I don't think that's a good idea. The terraform test command will run each test in series based on the alphabetical order of the files; however, you can select specific tests to run if you prefer. A test is made up of a series of Terraform runs, executed in the order they're defined inside the file. By default, each run will use the root module of the configuration from which you're running the test. But sometimes you need to set up resources for the test to use, or you need to leverage some resources after the configuration is deployed to validate it. To that end, you can reference a different module inside of your test run. When all of the runs complete, Terraform finishes the test by cleaning up any resources that were deployed during the test runs. The final step is to report the results of the test and whether each run passed or failed. There are two kinds of runs, plan and apply. Plan does not deploy any resources. It simply generates an execution plan that you can assert conditions against. In those assertions, all of the tested values have to be known at apply. You can't have computed values in there. Apply runs stand up actual infrastructure during the test and store the state for that infrastructure in a temporary location. Subsequent runs in the same test will have access to the outputs of the state data from previous runs. When a test completes, all apply runs will execute a destroy action to tear down the temporary infrastructure that was created for the test. That's the general workflow, so now let's dig into the syntax. There are several top‑level blocks supported in a testing file. The variables block allows you to define variable values to be used by the runs in the test. The block is optional and can be overridden by a variable block inside of a run. The provider block lets you define how a provider should be configured for this test. Maybe you want to make sure that your AWS provider is using a particular region or has certain default tags enabled. You can specify multiple provider blocks as needed. If you don't specify a provider block, the test will use the provider block defined inside your module. Inside of your test, there needs to be at least one run block; otherwise, the test really wouldn't do anything. The run blocks will be executed in the order that they appear. This is one of the few times that block order matters in Terraform. What goes into that run block? The run block starts with a single name_label so you can refer to the run elsewhere in the test. Inside the run block, you can define what type of run is being executed. The argument is command, and it can be set to either plan or apply. If you omit the command argument, the run will default to apply. If you didn't supply a top‑level variables block or want to declare more specific values, you can add a variables block inside of the run block. As I mentioned earlier, the default behavior of a run block is to execute the plan or apply command against the root module. If you would like to use a different module for the run, you'll add the module block and include a source and version if applicable. Nothing else goes inside of the module block. What about the actual testing? There's two options for that. The assert block works just like it did in the check block from earlier. It has condition and error message arguments. If the condition resolves to false, the run is listed as failed in the testing results. Sometimes you may want to test for failure of a validation block, so instead of an assert block, you can add the expect_failures argument and pass it a list of objects that will have failed validations. That could be variable validation, preconditions, or postconditions. You do not have to specify an assert block or expect failures argument inside of a run block. For runs that are simply setting up dependencies or infrastructure to test in a later run block, assert and expect failures wouldn't be all that useful. The run block does have a few other arguments, but we've covered the most relevant ones for now.
+We now have all these tests that we want to run, and we probably want to do that through an automated system. 
+The Terraform testing framework was introduced in Terraform 1.6, and it provides a built‑in way for you to test your Terraform code. 
+
+Each test that Terraform runs is defined inside of a .tftest.hcl or .tftest.json file.
+A test is made up of a series of Terraform runs, executed in the order they're defined inside the file
+By default, the command looks for test files defined in the current working directory or a tests subdirectory
+
+The terraform test command will run each test in series based on the alphabetical order of the files; however, you can select specific tests to run if you prefer. 
+Inside of your test, there needs to be at least one run block; otherwise, the test really wouldn't do anything. The run blocks will be executed in the order that they appear.
+A test is made up of a series of Terraform runs, executed in the order they're defined inside the file. 
+By default, each run will use the root module of the configuration from which you're running the test. 
+
+
+Before we jump into the syntax:
+
+    run  "<name_label>" {
+        #can be set to either plan or apply. If you omit the command argument, the run will default to apply    
+        command = plan | apply
+
+        variables {
+            <variable_name> = <variable_value>
+        }
+
+        module {
+            source = "<local or remote module>"
+        }
+
+        assert {
+            condition     = true | false
+            error_message = "Description of failure."
+        }
+
+        expect_failure = [<list of objects with failure>]
+    }
+
+But sometimes you need to set up resources for the test to use, or you need to leverage some resources after the configuration is deployed to validate it. 
+To that end, you can reference a different module inside of your test run. 
+When all of the runs complete, Terraform finishes the test by cleaning up any resources that were deployed during the test runs. 
+
+The final step is to report the results of the test and whether each run passed or failed. There are two kinds of runs, plan and apply. 
+
+Plan does not deploy any resources. It simply generates an execution plan that you can assert conditions against. 
+In those assertions, all of the tested values have to be known at apply. You can't have computed values in there. 
+
+Apply runs stand up actual infrastructure during the test and store the state for that infrastructure in a temporary location. 
+Subsequent runs in the same test will have access to the outputs of the state data from previous runs. 
+When a test completes, all apply runs will execute a destroy action to tear down the temporary infrastructure that was created for the test. 
+
+That's the general workflow, so now let's dig into the syntax. There are several top‑level blocks supported in a testing file. 
+The variables block allows you to define variable values to be used by the runs in the test. The block is optional and can be overridden by a variable block inside of a run. 
+The provider block lets you define how a provider should be configured for this test. Maybe you want to make sure that your AWS provider is using a particular region or has certain default tags enabled. 
+You can specify multiple provider blocks as needed. If you don't specify a provider block, the test will use the provider block defined inside your module. 
+
+ 
+If you didn't supply a top‑level variables block or want to declare more specific values, you can add a variables block inside of the run block. 
+The assert block works just like it did in the check block from earlier. It has condition and error message arguments. If the condition resolves to false, the run is listed as failed in the testing results. Sometimes you may want to test for failure of a validation block, so instead of an assert block, you can add the expect_failures argument and pass it a list of objects that will have failed validations.
+That could be variable validation, preconditions, or postconditions. You do not have to specify an assert block or expect failures argument inside of a run block. 
+For runs that are simply setting up dependencies or infrastructure to test in a later run block, assert and expect failures wouldn't be all that useful. 
+The run block does have a few other arguments, but we've covered the most relevant ones for now.
+
+# Practicals
+- Produce a valid Plan
+- Check variable validation
+- Verify website is available
+
+
+
+# Solution
+
+Now run:
+
+    $ cd 06-testing-and-validation/04-terraform-test
+
+    $  cp -R ../03-drift/base_app/ .
+
+    $ cd base_app/
+
+    $ rm -rf m2.tfplan
+
+    $ mkdir test && touch integration_test.tftest.hcl var_test.tftest.hcl
+
+Checkout the content that I added to the files. Comment out the content of integration_test.tftest.hcl and run below:
+
+    $ terraform init [if you have not already done so]
+
+    $ terraform fmt
+
+    $ terraform validate
+
+    $ terraform test
+
+        tests/integration_test.tftest.hcl... in progress
+        tests/integration_test.tftest.hcl... pass
+        tests/var_test.tftest.hcl... in progress
+        run "good_plan"... pass
+        run "company_name_regex"... pass
+        tests/var_test.tftest.hcl... tearing down
+        tests/var_test.tftest.hcl... pass
+
+        Success! 2 passed, 0 failed.    
+
+The variable test passed. Also the integration test passed because the file was present with no/commented out content and hence no failure
+
+Uncomment the integration_test.tftest.hcl 
+
+    $ terraform test
+
+        tests/integration_test.tftest.hcl... in progress
+        run "setup"... pass
+        run "test_site"... pass
+        tests/integration_test.tftest.hcl... tearing down
+        tests/integration_test.tftest.hcl... pass
+        tests/var_test.tftest.hcl... in progress
+        run "good_plan"... pass
+        run "company_name_regex"... pass
+        tests/var_test.tftest.hcl... tearing down
+        tests/var_test.tftest.hcl... pass
+
+        Success! 4 passed, 0 failed.
+
+
+# Advanced Testing Features
+We're going to start with mock data. In software development, you often supply mock data or a mock service when doing your testing. 
+That way you don't have to stand up an entire application to perform unit or integration testing, and the testing process goes much faster. 
+Terraform has the same thing in the form of mock providers, mock resources, and mock data sources. Let's start by talking about mock providers. 
+
+The mock provider can be used in place of the actual provider. 
+This is useful for scenarios where you don't have access to the actual provider environments like an AWS account 
+or provisioning the supporting infrastructure would take too much time, like a Kubernetes cluster. 
+When you invoke a mock provider, it generates a matching schema based off that provider plug‑in. 
+To do that, it has to pretend that the resources and data sources in the configuration were actually provisioned with real values. 
+
+For any computed attributes that don't come from the configuration, the solution is to just make up values of the correct type for each attribute. 
+Mock providers have a standard set of values to use for each data type. 
+So if we were mocking up an S3 bucket, the ARN that would normally be generated by AWS is set to a random string. If you want a resource or data source attribute to have a specific value, you can change the default value by adding a mock_resource or mock_data source inside of the mock provider block. 
+The values included in the mock_data or mock_resource block will be used for all objects of that type. 
+
+What if you wanted to set an attribute value for a specific resource or data source in the configuration, not all instances of it? That's where overrides come in. 
+Overrides allow you to change the attribute values for a particular resource, data source, or module output in your configuration. 
+Overrides can be defined inside of a mock provider or as a top‑level block in the test. 
+An override will take precedence over a mock data source or resource since it is specific to the exact data source or resource in the configuration. 
+All of the runs in our tests were executed in series, but what if you wanted to run a bunch in parallel to speed up the execution time? 
+It is possible to kick off runs in parallel; however, a few things need to be true. Number one, the runs do not reference outputs from each other. 
+
+Number two, the runs cannot share the same instance of state. That would violate concurrent access to state. 
+And number three, all of the applicable runs have to have the parallel attribute set to true. You can set that attribute at the top level of the test block or individually inside of run blocks. 
+
+Parallel testing is extremely useful if you have tons of variable validation tests that you'd like to run in parallel. 
+There's even more to the testing framework than what I've included here, however, I think this is a solid start. 
+You can use the Taco Wagon configuration and the tests we've already developed to experiment with these advanced features. 
+ 
 
 

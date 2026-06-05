@@ -57,14 +57,14 @@ resource "random_string" "bucket_suffix" {
 
 # used assume to create resource in another account, so we need to specify the provider for that account
 module "prod_s3_bucket" {
-  source               = "../vpc_flow_logs"
-  vpc_id = module.prod_vpc.vpc_id
-  naming_prefix = "sopes-saloon"
-  iam_role_arn = var.security_role_arn
+  source           = "../vpc_flow_logs"
+  vpc_id           = module.prod_vpc.vpc_id
+  naming_prefix    = "sopes-saloon"
+  iam_role_arn     = var.security_role_arn
   bucket_id_suffix = random_string.bucket_suffix.result
 
   providers = {
-    aws = aws.security
+    aws             = aws.security
     aws.vpc_account = aws
   }
 }

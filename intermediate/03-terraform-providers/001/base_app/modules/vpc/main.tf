@@ -5,8 +5,8 @@ data "aws_availability_zones" "available" {
 locals {
   # map each subnet to an availability zone in a round-robin fashion
   subnet_to_az = {
-    for subnet in keys(var.network_info.public_subnets) : 
-      subnet => element(data.aws_availability_zones.available.names, index(keys(var.network_info.public_subnets), subnet) % length(data.aws_availability_zones.available.names))
+    for subnet in keys(var.network_info.public_subnets) :
+    subnet => element(data.aws_availability_zones.available.names, index(keys(var.network_info.public_subnets), subnet) % length(data.aws_availability_zones.available.names))
   }
 }
 

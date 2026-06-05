@@ -15,7 +15,7 @@ module "web_front_end" {
   launch_template_ami     = data.aws_ssm_parameter.amzn2_linux.value
   prefix                  = var.prefix
   public_subnet_ids       = module.vpc.public_subnets # note here that the FE module is using the public subnet IDs from the VPC module
-  vpc_id                  = module.vpc.vpc_id # note here that the FE module is using the public subnet IDs from the VPC module
+  vpc_id                  = module.vpc.vpc_id         # note here that the FE module is using the public subnet IDs from the VPC module
   user_data_contents = base64encode(templatefile("./templates/startup_script.tpl", {
     environment = var.environment
   }))

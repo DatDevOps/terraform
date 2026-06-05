@@ -5,7 +5,7 @@ locals {
   resource_prefix = "${var.company_name}-${var.environment}"
 
   allowed_env = ["dev", "staging", "prod"]
-  
+
   common_tags = {
     Environment = var.environment
     Company     = var.company_name

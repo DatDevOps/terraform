@@ -18,7 +18,7 @@ terraform {
 ##################################################################################
 
 provider "aws" {
-  region     = "us-east-1"
+  region  = "us-east-1"
   profile = "my-sandbox"
 }
 
@@ -92,10 +92,10 @@ resource "aws_security_group" "nginx_sg" {
 
 # INSTANCES #
 resource "aws_instance" "nginx1" {
-  ami                    = nonsensitive(data.aws_ssm_parameter.amzn2_linux.value)
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_subnet1.id
-  vpc_security_group_ids = [aws_security_group.nginx_sg.id]
+  ami                         = nonsensitive(data.aws_ssm_parameter.amzn2_linux.value)
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_subnet1.id
+  vpc_security_group_ids      = [aws_security_group.nginx_sg.id]
   user_data_replace_on_change = true
 
   user_data = <<EOF

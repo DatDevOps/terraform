@@ -94,8 +94,6 @@ Check blocks are also leveraged by ACP Terraform and Terraform Enterprise as par
 
 # Solution
 
-
-
 Now run:
 
     $ cd 06-testing-and-validation/03-drift

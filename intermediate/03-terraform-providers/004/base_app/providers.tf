@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "security"
+  alias  = "security"
   region = var.region
   assume_role {
     role_arn = var.security_role_arn

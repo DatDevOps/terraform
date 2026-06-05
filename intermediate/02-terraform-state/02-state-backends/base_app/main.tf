@@ -53,7 +53,7 @@ resource "aws_iam_instance_profile" "main" {
 }
 
 resource "aws_iam_role" "main" {
-  name               = "${local.role_name}-${local.environment}"
+  name = "${local.role_name}-${local.environment}"
   # name               = local.role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
@@ -110,7 +110,7 @@ resource "aws_security_group" "main" {
 ## Other Resources
 
 resource "aws_secretsmanager_secret" "api_secret" {
-  name                           = "${local.secret_name}-${local.environment}"
+  name = "${local.secret_name}-${local.environment}"
   # name                           = local.secret_name
   description                    = "Secret to store API key"
   force_overwrite_replica_secret = true

@@ -1,8 +1,8 @@
 ## Networking Resources
 module "prod_vpc" {
-  source      = "./modules/vpc"
-  environment = var.environment
-  region      = var.region
+  source       = "./modules/vpc"
+  environment  = var.environment
+  region       = var.region
   network_info = var.network_info
 }
 
