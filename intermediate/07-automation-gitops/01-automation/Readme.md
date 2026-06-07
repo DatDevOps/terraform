@@ -13,7 +13,7 @@ You will be helping them embrace the power of automation and GitOps by achieving
 
 # Solutions
 
-    $ cd intermediate/automation-gitops/01-automation [ module directory]
+    $ cd intermediate/07-automation-gitops/01-automation [ module directory]
 
     $ cp -R ../base_app/ . [copy starter config to be used for module]
 
