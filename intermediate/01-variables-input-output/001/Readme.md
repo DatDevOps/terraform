@@ -92,7 +92,7 @@ You can pass commandline argument when running 'terraform plan'
 
    $ terraform plan -var-file=values.tfvars
 
-The structure of the file should be ey/value pairs like below for the file named values.tfvars
+The structure of the file should be key/value pairs like below for the file named values.tfvars
 
    instance_type = "t2.micro"
    aws_region    = "us-east-1"

@@ -50,9 +50,17 @@ The followig setup will be need to complete the practicals:
 
 The only thing missing for our sent up is thebackend S3 bucket
     
-    $ cd d intermediate/automation-gitops/02-cicd   [move into current module directory]
+    $ cd intermediate/automation-gitops/02-cicd   [move into current module directory]
 
-    $ $ cp -R ../01-automation/base_app/ .          [copies completed configuration from 01-automation/base_app] 
+    $ cp -R ../01-automation/base_app/ .          [copies completed configuration from 01-automation/base_app] 
+    
+    $ cd base_app
+
+Then do the  below:
+
+    - Go to GH
+    - Create a repo for this module 
+    - copy the base_app and setup directory to a new folder
 
 Now I have added the configs to create a bucket in setup/create_backend_storage/main.tf
 
@@ -66,27 +74,97 @@ Now I have added the configs to create a bucket in setup/create_backend_storage/
 
     $ terraform plan -out s3-backend.tfplan
 
-    $ terraform apply s3-backend.tfplan  [copy the bucket name and region from the terminal outputs]
+    $ terraform apply s3-backend.tfplan  [copy the bucket name and region from the terminal outputs and save somewhere]
 
         bucket_info = {
         "bucket" = "tw-terraform-state20260605230611342700000001"
         "region" = "us-east-1"
         }    
 
+    - moved into thebase_app directory
+
+        $ cd ../base_app
+
+    - initialize content in base_app as a new git repo
+
+        $ git init
+
+    - push the content to your new rep
+
+        $ git add .
+
+        $ git commit -m "init"
+
+        $ git branch -m main [changes default branch name to main]
+
+        $ git remote add origin <new_repo_url>
+
+        $ git push -u origin main
+
 Setup is done!
 
-Now copy the buckname and region as below and paste it as additions to the various envs in all the various stage files with .hcl extensions in backend directory
+Move into the project module:
 
-        bucket = "tw-terraform-state20260605230611342700000001"
-        region = "us-east-1"
+    $ cd ./base_app [module project directory]
 
-Have your AWS Key ID and AWS Secret Access Key handy
+Continue with:
 
-    - Go to GH
-    - Create a repo for this module
+    - In the module directory and new git repo, create a new branch named 'tf-ci'
+
+    - Add the .github/workflows content
+
+    - add the .github/workflows directory and files 'ci.yml' and 'cd.yml' (with their contents) for GH actions
+
+    - Now copy the buckname and region as below and paste it as additions to the various envs in all the various stage files with .hcl extensions in backend directory
+
+            bucket = "tw-terraform-state20260605230611342700000001"
+            region = "us-east-1"
+
+    - In terraform.tf, comment out the below code for now:
+
+        backend "s3" {
+        # Use contents from backends/*.hcl files
+        }
+
+    - create a folder and file to hold dev variables - environmente/dev.tfvars with file content below
+
+        environment =   "dev"
+        prefix  =   "tw-dev"
+        vpc_address_range   =   "10.0.0.0/16"
+        vpc_public_subnet_ranges    =   ["10.0.1.0/24", "10.0.2.0/24"]
+
+    - run the below against your new branch:
+
+        $ terraform fmt -recursive
+
+        $ terraform validate
+
+    - push your new branch to GH
+
+Have your AWS Key ID and AWS Secret Access Key handy. Go to GH
+
     - Click repo settings and go to 'Secrets and variables'
     - Click on Secrets nad variables
     - Click on Actions
     - Click on the variable and click on New repository variable
     - Enter TF_VERSION (for terraform version) as variable name
-    - Enter 1.15.0 as the value of the variable
+    - Enter 1.15.6 [that was my local machine version or a valid Terraform  version] as the value of the variable
+    - Click on Add variable
+    - Now click on the  Secrets tab
+    - Click on Add new repository secret
+    - Enter AWS_ACCESS_KEY_ID (AWS Key ID) as secret name
+    - Enter AKIAXXXXXXXXXXXX as the value of the secret
+    - Click on Add new repository secret
+    - Enter AWS_SECRET_ACCESS_KEY (AWS Secret Key) as secret name
+    - Enter asagakagalgfagkfagla as the value of the secret
+    - Click on Add new repository secret
+    - Enter AWS_REGION (AWS region) as secret name
+    - Enter us-east-1 or any other region of choice as the value of the secret
+
+Once you are done setting up the GH secrets for action, create a PR [ main <===== tf-ci ] to merger your tf-ci branch to main but do not merge it yet.
+
+The action should fire once you create the PR and should succeed if all is weel. If not, debug the error using the GH action logs and push your new code changes with fix
+
+Now merger your PR and watch the cd.yml workflow kick off and deploy a VPC infra to us-west-2
+
+

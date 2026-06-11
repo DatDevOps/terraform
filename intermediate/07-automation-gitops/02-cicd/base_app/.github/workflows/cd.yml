@@ -17,7 +17,9 @@ env:
   TF_VERSION: ${{ vars.TF_VERSION }}
 
 jobs:
+  # Job Get CI Run ID uses GitHub CLI command gh run list to find the latest successful run of the "Terraform CI" workflow for the current pull request branch. It retrieves the databaseId of that run, which is used as the run_id output for artifact retrieval in the deploy-dev job. The job only runs if the pull request is merged (github.event.pull_request.merged == true).
   # Get the workflow run ID from the CI workflow for artifact retrieval
+  # It saves that CI run id as output run_id.
   get-run-id:
     name: Get CI Run ID
     if: github.event.pull_request.merged == true
@@ -74,6 +76,10 @@ jobs:
       - name: Download Plan Artifact
         if: needs.get-run-id.outputs.run_id != ''
         uses: actions/download-artifact@v4
+        # The step Download Plan Artifact pulls that artifact from the CI run using:
+        # name: tf-plan-dev-{run_id}
+        # run-id: {run_id}
+        # If download succeeds, artifact contents are placed in the workspace (usually including tf.plan).        
         with:
           name: tf-plan-dev-${{ needs.get-run-id.outputs.run_id }}
           run-id: ${{ needs.get-run-id.outputs.run_id }}
