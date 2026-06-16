@@ -1,0 +1,10 @@
+# Example terraform.tfvars file for Globomantics scenario
+# Copy this file to terraform.tfvars and update with your values
+
+company_name       = "globomantics"
+environment        = "dev"
+aws_region         = "us-west-2"
+availability_zones = ["REPLACE_ME","REPLACE_ME"] # Use M1 commands
+vpc_cidr           = "10.0.0.0/16"
+instance_type      = "t3.micro"
+instance_ami_id    = "RETRIEVE_WITH_M1_COMMANDS"
