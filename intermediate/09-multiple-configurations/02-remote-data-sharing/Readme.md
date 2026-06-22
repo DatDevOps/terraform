@@ -125,7 +125,7 @@ Split the taco-wagon configuration into two
 
 - Create S3 backend for taco_wagon_app and taco_wagon_net
 
-    $ cd ./02-remote-data-sharing/s3-backend
+    $ cd ./02-remote-data-sharing/tfstate-backend
 
     $ terraform init
 

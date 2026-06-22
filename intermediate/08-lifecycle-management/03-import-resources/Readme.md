@@ -1,6 +1,20 @@
 <!-- Import Process Options -->
 
-# Import command
+# Recreating Resources
+
+#Mark a resources for recreation in state
+
+    $ terraform taint ADDR
+
+    $ terraform taint aws_instance.web
+
+#Replace a resource as part of the execution plan
+
+    $ terraform plan –replace="aws_instance.web"
+
+    $ terraform apply –replace="aws_instance.web"
+
+# Import command    
 Terraform has two built‑in processes for importing existing resources into Terraform, and we'll examine each one and compare the two options. 
 The first option is to use the terraform import command. The command takes two arguments, the desired resource address and the identifier of the resource. 
 The identifier is the unique ID of the resource in the target environment, and that identifier is specific to the resource type. 
