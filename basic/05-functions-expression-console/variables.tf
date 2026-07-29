@@ -57,3 +57,30 @@ variable "billing_code" {
   description = "The billing code associated with the resources"
   type        = string
 }
+
+# Additional variables for testing other functions not used in this configuration
+variable "instance_map" {
+  description = "A map of instance names to their respective AMI IDs"
+  type        = map(string)
+  default     = { 
+    "us-east-1" = "t2.micro"
+    "us-west-2" = "t3.micro" 
+  }
+}
+
+variable "subnet_cidrs" {
+  description = "A list of CIDR blocks for subnets"
+  type        = list(string)
+  default     = ["10.0.0.0/24", "10.0.1.0/24"]
+}
+
+variable "users" {
+  description = "A list of users"
+  type        = list(string)
+  default     = ["alice", "bob"]
+}
+
+variable "json_string" {
+  type    = string
+  default = "{\"env\": \"production\", \"instance_count\": 3, \"enable_monitoring\": true}"
+}

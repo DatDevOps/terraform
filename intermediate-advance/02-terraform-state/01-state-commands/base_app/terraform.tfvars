@@ -11,7 +11,7 @@ vpc_network_info = {
   }
 }
 
-project = "burrito_barn"
+project = "burrito-barn"
 
 tags = {
   BillingCode = "8675309"

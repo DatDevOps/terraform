@@ -4,5 +4,5 @@ locals {
     Project     = var.project
   })
 
-  naming_prefix = "${var.project}_${var.environment}"
+  naming_prefix = "${var.project}-${var.environment}"
 }
