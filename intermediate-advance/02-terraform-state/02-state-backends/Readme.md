@@ -182,6 +182,13 @@ Note: In newer Terraform versions, -migrate-state may be the default behavior wh
 
 #  Terraform state locking
 Prevents multiple users from making chnages to state at the same time. Terraform plan, apply, and console all place a lock on state.
+
+Command	                    Locks state
+* terraform console	        No (evaluates expressions only)
+* terraform plan	        Yes briefly (read lock)
+* terraform apply	        Yes (write lock, held for duration)
+* terraform destroy	        Yes (write lock, held for duration)
+
 If Terraform cannot acquire a lock on state, it usiually error out with a lock error that includes when the lock was placed and who placed it
 In the event that a terraform process crashes and did not remove the lock, you can forcefully remove the lock using below:
 
